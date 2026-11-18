@@ -4,8 +4,10 @@
 
 ## WSL 本地快速开始
 
+`agentRes26` 是共享父目录；本项目的 Git 仓库和专用 Conda 环境都放在 `agentCost` 子目录内。
+
 ```bash
-cd /home/cyl/agentRes26
+cd /home/cyl/agentRes26/agentCost
 ENV="$PWD/.local/conda-envs/capability-eval-cpu"
 WORK=/mnt/e/codexWorkSpace/capability-eval
 mkdir -p "$WORK/tmp" "$WORK/cache" "$PWD/.local/conda-pkgs"

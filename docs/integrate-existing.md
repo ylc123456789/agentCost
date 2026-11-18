@@ -5,7 +5,7 @@
 固定 `inspect-ai==0.3.139`（MIT，调用已安装的包），`transformers==4.56.2`、`torch==2.8.0+cpu`。`examples/inspect_smoke.py` 是独立任务：Inspect AI 的 `Task`、`generate(cache=False)`、评测执行循环和日志不修改。仅在自定义 ModelAPI 提供随机初始化的微型 GPT-2 CPU 后端；一条合成题、一条生成、三个新 token 上限，不进行官方评分。包装时增加可选 SDK 边界：实际调用 `.generate()` 前记 `inspect_generate`、生成后记录后端真实 token 数；对独立运行没有强依赖。
 
 ```bash
-R=/home/cyl/agentRes26
+R=/home/cyl/agentRes26/agentCost
 P="$R/.local/conda-envs/capability-eval-cpu/bin/python"
 WORK=/mnt/e/codexWorkSpace/capability-eval/tmp
 mkdir -p "$WORK/inspect-original"; cd "$WORK/inspect-original"

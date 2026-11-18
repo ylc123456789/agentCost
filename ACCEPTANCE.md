@@ -2,6 +2,8 @@
 
 执行源码：`8e467616bf26c6ce8977e733a35c127c0e0cb7e7`（本文件后续只补验收记录）。项目 `/home/cyl/agentRes26`，Ubuntu-D WSL2。专用 Conda prefix `/home/cyl/agentRes26/.local/conda-envs/capability-eval-cpu`，Python 3.11.15、Torch `2.8.0+cpu`、Transformers `4.56.2`、PEFT `0.17.1`、Inspect AI `0.3.139`。
 
+上面是历史验收路径。当前项目根为 `/home/cyl/agentRes26/agentCost`；专用环境位于 `/home/cyl/agentRes26/agentCost/.local/conda-envs/capability-eval-cpu`。
+
 | 验收项 | 状态 | 证据 |
 |---|---|---|
 | 核心 SDK / CLI / 账本 | 本地通过（`fixture_only` 合成合同） | 14/14 合同测试通过（38.997 秒）。预算早于派发；超时进程树已确认退出；强制中断和预留后建目录失败均不重发已预留项；保持计划分母。合成配对 +1/−1；6 份候选两次评分的 hash 一致。断网、`python -S`、只有账本与冻结文件的重算，三个报告逐字节一致。 |

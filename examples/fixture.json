@@ -1,0 +1,16 @@
+{
+  "schema_version":"1.0",
+  "experiment_id":"synthetic-contract",
+  "tasks":[
+    {"id":"fixture/add","prompt":"2 + 2?","dataset":"synthetic"},
+    {"id":"fixture/subtract","prompt":"3 - 1?","dataset":"synthetic"},
+    {"id":"fixture/multiply","prompt":"2 * 3?","dataset":"synthetic"}
+  ],
+  "methods":[
+    {"id":"baseline","driver":"fixture","recipe":{"answers":{"fixture/add":"4","fixture/subtract":"wrong","fixture/multiply":"6"}}},
+    {"id":"variant","driver":"fixture","recipe":{"answers":{"fixture/add":"wrong","fixture/subtract":"2","fixture/multiply":"6"}}}
+  ],
+  "budget":{"max_attempts":6,"max_requests":{"dispatch":6},"attempt_timeout_seconds":10},
+  "scoring":{"kind":"exact","version":"synthetic-exact-1","private_sha256":"78cf4f2e57f6b7cde97845f33e2fdce8b3560c64874798b6d2ae1ee5fa5d4326"},
+  "analysis":{"baseline":"baseline","quality_floor":0.6,"workload_file":"workload.json"}
+}

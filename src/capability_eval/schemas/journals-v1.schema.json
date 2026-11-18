@@ -1,0 +1,33 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"urn:capability-eval:journals:1.0",
+  "$defs": {
+    "slot": {
+      "type":"object","required":["id","task_id","method_id","replicate","requests"],
+      "properties":{"id":{"type":"string"},"task_id":{"type":"string"},"method_id":{"type":"string"},
+        "replicate":{"type":"integer","minimum":0},"requests":{"type":"object","additionalProperties":{"type":"integer","minimum":0}}}
+    },
+    "plan": {
+      "type":"object","required":["schema_version","run_id","kind","provenance","denominator_kind","methods","tasks","attempts","analysis"],
+      "properties":{"schema_version":{"const":"1.0"},"run_id":{"type":"string"},"kind":{"const":"plan_freeze"},
+        "provenance":{"enum":["current","imported"]},"denominator_kind":{"enum":["planned","observed_only"]},
+        "methods":{"type":"array"},"tasks":{"type":"array"},"attempts":{"type":"array","items":{"$ref":"#/$defs/slot"}},
+        "analysis":{"type":"object"}}
+    },
+    "attempt": {
+      "type":"object","required":["schema_version","run_id","attempt_id","method_id","task_id","replicate","status"],
+      "properties":{"schema_version":{"const":"1.0"},"run_id":{"type":"string"},"attempt_id":{"type":"string"},
+        "method_id":{"type":"string"},"task_id":{"type":"string"},"replicate":{"type":"integer","minimum":0},
+        "status":{"enum":["reserved","completed","failed","timeout","interrupted","unconfirmed"]},
+        "cleanup_confirmed":{"type":["boolean","null"]},"candidate":{"type":["object","null"]}}
+    },
+    "score": {
+      "type":"object","required":["schema_version","run_id","attempt_id","source","score_version","candidate","score","passed","reason"],
+      "properties":{"schema_version":{"const":"1.0"},"run_id":{"type":"string"},"attempt_id":{"type":"string"},
+        "source":{"enum":["current","imported"]},"score_version":{"type":"integer","minimum":1},
+        "candidate":{"type":["object","null"]},"score":{"enum":[0,1,null]},"passed":{"enum":[false,true,null]},
+        "reason":{"type":["string","null"]}}
+    }
+  },
+  "oneOf":[{"$ref":"#/$defs/plan"},{"$ref":"#/$defs/attempt"},{"$ref":"#/$defs/score"}]
+}

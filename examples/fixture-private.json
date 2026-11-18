@@ -1,0 +1,5 @@
+{
+  "fixture/add": {"expected":"4","hidden_reference":"PRIVATE-CANARY-fixture-only"},
+  "fixture/subtract": {"expected":"2"},
+  "fixture/multiply": {"expected":"6"}
+}

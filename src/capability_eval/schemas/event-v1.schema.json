@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:capability-eval:event:1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version","run_id","event_id","kind","method_id","state_id","task_id","attempt_id",
+    "span_id","parent_span_id","phase","component_role","clock_domain","monotonic_ns","utc","process_id",
+    "device_id","status","source","measurement_status","metric","value","unit","reason","artifact_refs","data"],
+  "properties": {
+    "schema_version": {"const":"1.0"},
+    "run_id": {"type":"string","minLength":1},
+    "event_id": {"type":"string","minLength":1},
+    "kind": {"enum":["start","end","measurement","budget","artifact","note"]},
+    "method_id": {"$ref":"#/$defs/optionalString"},
+    "state_id": {"$ref":"#/$defs/optionalString"},
+    "task_id": {"$ref":"#/$defs/optionalString"},
+    "attempt_id": {"$ref":"#/$defs/optionalString"},
+    "span_id": {"$ref":"#/$defs/optionalString"},
+    "parent_span_id": {"$ref":"#/$defs/optionalString"},
+    "phase": {"enum":["prepare","import","load","warmup","serve","evaluation","research_overhead","deployment_overhead","device_hold"]},
+    "component_role": {"enum":["controller","actor","retriever","encoder","composer","teacher","grader","tool","runtime","device"]},
+    "clock_domain": {"$ref":"#/$defs/optionalString"},
+    "monotonic_ns": {"type":["integer","null"],"minimum":0},
+    "utc": {"type":["string","null"],"format":"date-time"},
+    "process_id": {"type":["integer","null"],"minimum":0},
+    "device_id": {"$ref":"#/$defs/optionalString"},
+    "status": {"enum":["started","completed","failed","interrupted","timeout","unconfirmed","reserved","not_applicable","unsupported"]},
+    "source": {"enum":["current","imported"]},
+    "measurement_status": {"enum":["observed","estimated","unavailable","not_applicable"]},
+    "metric": {"$ref":"#/$defs/optionalString"},
+    "value": {"type":["number","null"],"minimum":0},
+    "unit": {"$ref":"#/$defs/optionalString"},
+    "reason": {"$ref":"#/$defs/optionalString"},
+    "artifact_refs": {"type":"array","items":{"$ref":"#/$defs/ref"}},
+    "data": {"type":"object"}
+  },
+  "allOf": [
+    {"if":{"properties":{"kind":{"enum":["start","end"]}}},
+     "then":{"properties":{"span_id":{"type":"string"},"clock_domain":{"type":"string"},"monotonic_ns":{"type":"integer"}}}},
+    {"if":{"properties":{"measurement_status":{"const":"unavailable"}}},
+     "then":{"properties":{"value":{"type":"null"},"reason":{"type":"string","minLength":1}}}},
+    {"if":{"properties":{"kind":{"const":"measurement"}}},
+     "then":{"properties":{"metric":{"type":"string","minLength":1},"unit":{"type":"string","minLength":1}},
+       "if":{"properties":{"measurement_status":{"enum":["observed","estimated"]}}},
+       "then":{"properties":{"value":{"type":"number"}}},"else":{"properties":{"value":{"type":"null"}}}}}
+  ],
+  "$defs": {
+    "optionalString": {"type":["string","null"]},
+    "ref": {"type":"object","required":["path","sha256","bytes"],"additionalProperties":false,
+      "properties":{"path":{"type":"string","minLength":1},"sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+        "bytes":{"type":"integer","minimum":0}}}
+  }
+}

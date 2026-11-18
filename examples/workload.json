@@ -1,0 +1,8 @@
+{
+  "schema_version":"1.0",
+  "scenarios":[
+    {"id":"cold-20","tasks":20,"sessions":20},
+    {"id":"cold-100","tasks":100,"sessions":100},
+    {"id":"warm-hypothetical-unmeasured","tasks":100,"sessions":4}
+  ]
+}

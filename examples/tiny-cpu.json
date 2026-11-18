@@ -1,0 +1,19 @@
+{
+  "schema_version":"1.0",
+  "experiment_id":"tiny-transformer-carriers",
+  "tasks":[{"id":"demo/one","prompt":"Return the integer 4.","dataset":"synthetic"}],
+  "methods":[
+    {"id":"B0","driver":"transformer","requests":{"dispatch":1,"generate":1}},
+    {"id":"T","driver":"transformer","carriers":["text"],"materials":["skill"],"requests":{"dispatch":1,"generate":1}},
+    {"id":"Z","driver":"transformer","carriers":["input_embeds"],"requests":{"dispatch":1,"generate":1,"probe":3}},
+    {"id":"L","driver":"transformer","carriers":["actor_lora"],"requests":{"dispatch":1,"generate":1,"probe":3}},
+    {"id":"T-L","driver":"transformer","carriers":["text","actor_lora"],"materials":["skill"],"requests":{"dispatch":1,"generate":1,"probe":3}}
+  ],
+  "materials":[{"id":"skill","path":"skill.txt","split":"public","source":"synthetic example author","version":"1",
+                "historical":"not_applicable","sha256":"1f4d71de1710c614e9d27566e322bb3eeeb9ea027f5772a251904baae72b0412"}],
+  "runtime":{"device":"cpu","seed":17,"threads":1,"max_input":192,"max_new_tokens":4},
+  "cache":{"answer_cache":false,"request_kv_cache":true,"cross_task_capability_cache":false},
+  "budget":{"max_attempts":5,"max_requests":{"dispatch":5,"generate":5,"probe":9},"attempt_timeout_seconds":45},
+  "scoring":{"kind":"none","version":"not-scored"},
+  "analysis":{"baseline":"B0","workload_file":"workload.json"}
+}

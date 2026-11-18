@@ -1,0 +1,9 @@
+{
+  "schema_version":"1.0",
+  "kind":"flat-jsonl",
+  "mapping_version":"example/1.0",
+  "fields":{"task_id":"task","method_id":"method","status":"result","passed":"passed"},
+  "statuses":{"ok":"completed","timeout":"timeout","error":"failed"},
+  "metrics":[{"field":"seconds","label":"reported_seconds","unit":"s","phase":"serve",
+              "measurement_status":"estimated","boundary":"legacy combined generation and grading"}]
+}

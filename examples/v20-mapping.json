@@ -1,0 +1,8 @@
+{
+  "schema_version":"1.0",
+  "kind":"v20",
+  "mapping_version":"bcb-symmetric-memory-v20/1.0",
+  "source_commit":"2833ceccdc21728e19c3fe3f138171b07d4634e1",
+  "actor_seconds":"historical actor outer including offline scoring",
+  "allocator_peak":"process lifetime cumulative"
+}

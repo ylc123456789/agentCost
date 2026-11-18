@@ -143,7 +143,8 @@ def _recover(root, plan, freeze):
 def _execute(root, fd, plan, freeze, slot, method, task, state):
     aid = slot["id"]
     work = root / "raw" / aid
-    work.mkdir(exist_ok=False)
+    if work.exists() or work.is_symlink():
+        raise ContractError(f"unexpected work directory for unstarted attempt: {aid}")
     external = method["driver"] == "external"
     identity = {"run_id": plan["run_id"], "method_id": method["id"], "state_id": state["state_id"],
                 "task_id": task["id"], "attempt_id": aid, "limits": {k: v for k, v in slot["requests"].items()
@@ -153,6 +154,7 @@ def _execute(root, fd, plan, freeze, slot, method, task, state):
                    utc=recorder.clock.utc())
     recorder.emit("budget", role="controller", status="reserved", metric="dispatch", value=1, unit="calls",
                   measurement_status="observed", data={"request_envelope": slot["requests"]})
+    work.mkdir(exist_ok=False)  # crash before this leaves a durable reserved slot, never an orphan directory
     write_json(work / "recorder.json", identity, create=True)
     request = {"task": task, "method": {k: method[k] for k in ("id", "driver", "entrypoint", "identity_files")},
                "state": {"method_id": method["id"], "carrier": state["carrier"], "metadata": state["metadata"],

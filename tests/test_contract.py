@@ -9,6 +9,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from capability_eval.analysis import analyze, crossing, verify
 from capability_eval.analysis.resources import summarize
@@ -113,6 +114,22 @@ class Tests(unittest.TestCase):
         self.assertEqual(sum(v["denominator"] for v in q.values()), 6)
         self.assertEqual(sum(v["not_started"] for v in q.values()), 4)
         self.capture("budget-stopped")
+
+    def test_recover_reservation_without_work_directory(self):
+        cfg = self.config({"budget": {"max_attempts": 2, "max_requests": {"dispatch": 2}, "attempt_timeout_seconds": 3}})
+        prepare(cfg, self.root)
+        original = Path.mkdir
+
+        def fail_before_directory(path, *args, **kwargs):
+            if path == self.root / "raw/a000001":
+                raise OSError("simulated failure before creating attempt directory")
+            return original(path, *args, **kwargs)
+
+        with patch.object(Path, "mkdir", fail_before_directory), self.assertRaisesRegex(OSError, "simulated"):
+            run(self.root)
+        self.assertEqual(run(self.root)["executed"], {"a000002": "completed"})
+        self.assertEqual([row["status"] for row in rows(self.root / "attempts.jsonl") if row["attempt_id"] == "a000001"],
+                         ["reserved", "interrupted"])
 
     def test_timeout_kills_reparented_session(self):
         cfg = self.external_config('''import os, pathlib, subprocess, sys, time

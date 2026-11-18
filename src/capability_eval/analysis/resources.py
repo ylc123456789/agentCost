@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from math import fsum
 
 from ..contracts import PHASES
 from ..io import ContractError
@@ -65,7 +66,7 @@ def _groups(spans):
 
 
 def _wall(spans):
-    return sum(length(v) for v in _groups(spans).values())
+    return fsum(length(v) for v in _groups(spans).values())
 
 
 def coverage(value, complete, reason=None, **details):
@@ -89,7 +90,10 @@ def peak_series(events):
         values = [e["value"] for e in es if e["value"] is not None]
         aggregate = "max" if any(word in name for word in ("peak", "rss", "baseline")) else "sum_observations"
         # These are observation series, not deployment totals. Nested scopes are kept apart.
-        value = (max(values) if aggregate == "max" else sum(values)) if values else None
+        # Built-in float sum changed between Python 3.11 and 3.12. Use one
+        # explicit algorithm across versions; keep byte/token integers exact.
+        value = (max(values) if aggregate == "max" else
+                 sum(values) if all(type(v) is int for v in values) else fsum(values)) if values else None
         result.append(dict(metric=name, scope=scope, unit=unit, device_id=dev, source=source,
                            measurement_status=status, aggregate=aggregate, value=value,
                            measurements=len(values), records=len(es), partial=any(e["data"].get("partial") for e in es),
@@ -156,11 +160,11 @@ def summarize(plan, freeze, events, attempts):
         elif metric == GPU:
             values = [gpu_charge[s["span_id"]] for s in records if s["span_id"] in gpu_charge]
             complete &= len(values) == len(records)
-            value = sum(values) if values else None
+            value = fsum(values) if values else None
         else:
             values = [cpu[s["span_id"]][metric] for s in records if metric in cpu[s["span_id"]]]
             complete &= len(values) == len(records)
-            value = sum(values) if values else None
+            value = fsum(values) if values else None
         return coverage(value, complete, "missing or incomplete comparable outer observations")
 
     preparations = {}
@@ -197,7 +201,7 @@ def summarize(plan, freeze, events, attempts):
                 phase_costs[phase] = data
             parts = [preparations[p]["metrics"][key] for p in sorted(set(prepare_ids))]
             prep_ok = proper and all(item["complete"] for item in parts)
-            prep_value = sum(item["value"] for item in parts) if prep_ok and (key != GPU or gpu_charge) else None
+            prep_value = fsum(item["value"] for item in parts) if prep_ok and (key != GPU or gpu_charge) else None
             profile[key] = {"fixed_current": prep_value, "phases": phase_costs}
         observed = {phase: _wall([s for s in nested if s["phase"] == phase]) for phase in PHASES
                     if any(s["phase"] == phase for s in nested)}
@@ -224,7 +228,7 @@ def summarize(plan, freeze, events, attempts):
             "all_phase_wall_seconds": {phase: _wall([s for s in spans if s["phase"] == phase and
                    s["data"].get("accounting") != "process_envelope"]) for phase in PHASES
                    if any(s["phase"] == phase and s["data"].get("accounting") != "process_envelope" for s in spans)},
-            "device_windows": devices, "gpu_hold": {"value": sum(d["actual_hold_seconds"]["value"] for d in devices)
+            "device_windows": devices, "gpu_hold": {"value": fsum(d["actual_hold_seconds"]["value"] for d in devices)
                     if devices and all(d["actual_hold_seconds"]["complete"] for d in devices) else None,
                     "reason": ("no device lease observed" if not devices else "one or more device leases are incomplete"
                                if any(not d["actual_hold_seconds"]["complete"] for d in devices) else None)},
